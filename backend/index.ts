@@ -15,6 +15,9 @@ app.use(cors())
 app.use(express.json()); // To parse JSON bodies
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
+app.get("/",(req, res) => {
+    res.send("hello");
+})
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
