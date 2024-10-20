@@ -13,11 +13,11 @@ export const AppBar = () => {
         if (parts.length !== 3) {
             return false;
         }
-    
+
         if (token.length <= 15) {
             return false;
         }
-    
+
         return true;
     };
 
@@ -25,7 +25,7 @@ export const AppBar = () => {
     const name = localStorage.getItem("name")
     const token = localStorage.getItem('token') || "";
 
-    if(isValidJwt(token))
+    if (isValidJwt(token))
         loggedIn = true;
     console.log(loggedIn)
     useEffect(() => {
@@ -33,7 +33,7 @@ export const AppBar = () => {
             navigate("/dashboard");
         }
     }, [loggedIn, currentPath, navigate]);
-    
+
     return (
         <div className="flex justify-between w-[91.4%] min-h-[3.84%] mx-[3.18%] relative top-[4%]">
             <a href="/" className="w-[9.54%] h-[3.84%]">
@@ -50,6 +50,21 @@ export const AppBar = () => {
                     <div className="">
                         {name}
                     </div>
+                    <select
+                        className="focus:outline-none max-w-5 overflow-hidden"
+                        onChange={(e) => {
+                            if (e.target.value === "logout") {
+                                localStorage.removeItem("token");
+                                localStorage.removeItem("name");
+                                localStorage.removeItem("id");
+                                console.log("Logged out");
+                                navigate("/")
+                            }
+                        }}
+                    >
+                        <option value="">Select</option>
+                        <option value="logout">Logout</option>
+                    </select>
                 </div> : null}
             </div>
         </div>

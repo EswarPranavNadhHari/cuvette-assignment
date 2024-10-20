@@ -74,6 +74,7 @@ export const Verify = () => {
             console.log('Success:', data);
             setFormData({ ...formData, emailVerified: true })
         } catch (error) {
+            alert("incorrect otp")
             console.error('Error:', error);
         }
     };
@@ -98,6 +99,7 @@ export const Verify = () => {
             setFormData({ ...formData, phoneVerified: true })
             console.log('Success:', data);
         } catch (error) {
+            alert("incorrect otp")
             console.error('Error:', error);
         }
     };

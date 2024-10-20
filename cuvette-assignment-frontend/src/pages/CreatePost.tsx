@@ -18,8 +18,9 @@ export const CreatePost = () => {
         endDate: '',
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleTagChange = (tags: any) => {
-        setFormData({ ...formData, candidates: tags }); // Update candidates in formData
+        setFormData({ ...formData, candidates: tags });
     };
 
     const handleChange = (e: { target: { name: string; value: string; }; }) => {
@@ -39,12 +40,15 @@ export const CreatePost = () => {
                 body: JSON.stringify(formData),
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
+                alert(data.error)
                 throw new Error('Network response was not ok');
             }
 
-            const data = await response.json();
             console.log('Success:', data);
+            alert(data.message)
 
         } catch (error) {
             console.error('Error:', error);
@@ -116,7 +120,7 @@ export const CreatePost = () => {
                                 />
                             </div>
 
-                            <div className="flex justify-center font-medium">
+                            <div className="flex justify-end font-medium">
                                 <Button
                                     title="send"
                                     className="w-32 mt-10"

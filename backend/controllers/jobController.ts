@@ -14,7 +14,7 @@ export const postJob = async (req: Request, res: Response): Promise<void> => {
       endDate,
       postedBy: req.company.id,
     });
-
+    
     await sendJobAlertEmails(candidates, newJob);
 
     res.status(201).json({ message: "Job posted successfully", job: newJob });

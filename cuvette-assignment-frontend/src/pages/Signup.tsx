@@ -48,6 +48,7 @@ export const Signup = () => {
             console.log('Success:', data);
             navigate('/verify');
         } catch (error) {
+            alert("incorrect inputs")
             console.error('Error:', error);
         }
     };
