@@ -80,8 +80,11 @@ export const verifyEmailOtp = async (req: Request, res: Response): Promise<void>
 
         company.emailVerified = verify;
         await company.save();
-
-        res.status(200).json({ message: "Email verified successfully!" });
+        if(verify){
+            res.status(200).json({ message: "Email verified successfully!" });
+            return;
+        }
+        res.status(401).json({ message: "Incorrect OTP" });
         return; 
     } catch (error) {
         res.status(400).json({ error: "Error Try again later" });
@@ -106,7 +109,11 @@ export const verifyMobileOtp = async (req: Request, res: Response): Promise<void
         company.phoneVerified = verify;
         await company.save();
 
-        res.status(200).json({ message: "Mobile verified successfully!" });
+        if(verify){
+            res.status(200).json({ message: "M verified successfully!" });
+            return;
+        }
+        res.status(401).json({ message: "Incorrect OTP" });
         return; 
     } catch (error) {
         res.status(400).json({ error: "Error Try again later" });
