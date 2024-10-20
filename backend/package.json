@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon server.ts",
-    "start": "node dist/server.js",
+    "start": "nodemon server.ts",
     "build-and-run": "tsc && node dist/server.js",
     "build": "rimraf dist && tsc",
     "ts.check": "tsc --project tsconfig.json",

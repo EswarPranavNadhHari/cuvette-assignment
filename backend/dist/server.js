@@ -18,7 +18,7 @@ app.use(express_1.default.json()); // To parse JSON bodies
 app.use("/api/auth", authRoutes_1.default);
 app.use("/api/jobs", jobRoutes_1.default);
 app.get("/", (req, res) => {
-    res.send("hello");
+    res.send("hello world");
 });
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
