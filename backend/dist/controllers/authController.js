@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyMobileOtp = exports.verifyEmailOtp = exports.register = void 0;
+exports.generateToken = exports.verifyMobileOtp = exports.verifyEmailOtp = exports.register = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const company_1 = __importDefault(require("../models/company"));
 const email_1 = __importDefault(require("../utils/email"));
@@ -22,7 +22,6 @@ const register = async (req, res) => {
             employeeSize
         });
         await newCompany.save();
-        const verificationToken = jsonwebtoken_1.default.sign({ id: newCompany._id }, process.env.JWT_SECRET);
         const emailOtp = (0, otp_1.generateOTP)();
         await (0, email_1.default)(newCompany.email, emailOtp);
         const hashedEmailOtp = await (0, otp_1.hashOTP)(emailOtp);
@@ -35,7 +34,7 @@ const register = async (req, res) => {
         console.log(out);
         res.status(201).json({
             message: "Registration successful, Verify your Email and Phone Number",
-            token: verificationToken
+            id: newCompany._id
         });
     }
     catch (error) {
@@ -59,9 +58,9 @@ exports.register = register;
 //     res.header("Authorization", token).json({ token, company: company._id });
 // };
 const verifyEmailOtp = async (req, res) => {
-    const { otp } = req.body;
+    const { otp, id } = req.body;
     try {
-        const companyId = req.company.id;
+        const companyId = id;
         console.log(companyId);
         const company = await company_1.default.findById(companyId);
         if (!company) {
@@ -71,7 +70,11 @@ const verifyEmailOtp = async (req, res) => {
         const verify = await (0, otp_1.verifyOTP)(otp, company.emailOtp);
         company.emailVerified = verify;
         await company.save();
-        res.status(200).json({ message: "Email verified successfully!" });
+        if (verify) {
+            res.status(200).json({ message: "Email verified successfully!" });
+            return;
+        }
+        res.status(401).json({ message: "Incorrect OTP" });
         return;
     }
     catch (error) {
@@ -81,9 +84,9 @@ const verifyEmailOtp = async (req, res) => {
 };
 exports.verifyEmailOtp = verifyEmailOtp;
 const verifyMobileOtp = async (req, res) => {
-    const { otp } = req.body;
+    const { otp, id } = req.body;
     try {
-        const companyId = req.company.id;
+        const companyId = id;
         console.log(companyId);
         const company = await company_1.default.findById(companyId);
         if (!company) {
@@ -93,7 +96,11 @@ const verifyMobileOtp = async (req, res) => {
         const verify = await (0, otp_1.verifyOTP)(otp, company.phoneOtp);
         company.phoneVerified = verify;
         await company.save();
-        res.status(200).json({ message: "Mobile verified successfully!" });
+        if (verify) {
+            res.status(200).json({ message: "Mobile verified successfully!" });
+            return;
+        }
+        res.status(401).json({ message: "Incorrect OTP" });
         return;
     }
     catch (error) {
@@ -102,3 +109,27 @@ const verifyMobileOtp = async (req, res) => {
     }
 };
 exports.verifyMobileOtp = verifyMobileOtp;
+const generateToken = async (req, res) => {
+    const { id } = req.headers;
+    try {
+        const company = await company_1.default.findById(id);
+        if (!company) {
+            res.status(404).json({ error: "Company not found" });
+            return;
+        }
+        if (!(company.emailVerified && company.phoneVerified)) {
+            res.status(401).json({ error: "Verify email and phone" });
+            return;
+        }
+        const verificationToken = jsonwebtoken_1.default.sign({ id }, process.env.JWT_SECRET);
+        res.status(201).json({
+            message: "verification successful",
+            token: verificationToken
+        });
+    }
+    catch (error) {
+        res.status(400).json({ error: "Error Try again later" });
+        return;
+    }
+};
+exports.generateToken = generateToken;
