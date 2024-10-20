@@ -5,7 +5,7 @@ export const DashboardLayout = ({children}: {children: React.ReactNode}) => {
     return (
         <div className="h-dvh w-full">
             <div className="border-b p-4">
-                <AppBar loggedIn={true}/>
+                <AppBar/>
             </div>
             <div className="flex h-[90%]">
                 <div className="border-r">

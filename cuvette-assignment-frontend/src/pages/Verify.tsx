@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppBar } from "../components/AppBar"
 import { GridLayout } from "../components/GridLayout"
 import { InputBox } from "../components/InputBox";
 import { Button } from "../components/Button";
+import { useNavigate } from "react-router-dom";
+import phoneIcon from "./../assets/icons/vector.svg"
+import mailIcon from "./../assets/icons/mail.svg"
 
 export const Verify = () => {
 
-    const token = localStorage.getItem("token") || ""
+    const id = localStorage.getItem("id") || ""
 
     const [formData, setFormData] = useState({
         phoneOtp: "",
@@ -14,6 +17,38 @@ export const Verify = () => {
         emailOtp: "",
         emailVerified: false
     });
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (formData.phoneVerified && formData.emailVerified) {
+            const verify = async () => {
+                try {
+                    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/isverified`, {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'id': id,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    const data = await response.json();
+                    const token = data.token;
+                    localStorage.setItem("token", token);
+
+                    navigate('/dashboard');
+                } catch (error) {
+                    console.error('Error during verification:', error);
+                }
+            };
+
+            verify();
+        }
+    }, [formData.phoneVerified, formData.emailVerified, navigate, formData.emailOtp, id]);
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,13 +58,12 @@ export const Verify = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/verify/email', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/verify/email`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({otp: formData.emailOtp}),
+                body: JSON.stringify({ otp: formData.emailOtp, id }),
             });
 
             if (!response.ok) {
@@ -38,7 +72,7 @@ export const Verify = () => {
 
             const data = await response.json();
             console.log('Success:', data);
-            setFormData({...formData, emailVerified: true})
+            setFormData({ ...formData, emailVerified: true })
         } catch (error) {
             console.error('Error:', error);
         }
@@ -48,13 +82,12 @@ export const Verify = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/verify/phone', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/verify/phone`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({otp: formData.phoneOtp}),
+                body: JSON.stringify({ otp: formData.phoneOtp, id }),
             });
 
             if (!response.ok) {
@@ -62,7 +95,7 @@ export const Verify = () => {
             }
 
             const data = await response.json();
-            setFormData({...formData, phoneVerified: true})
+            setFormData({ ...formData, phoneVerified: true })
             console.log('Success:', data);
         } catch (error) {
             console.error('Error:', error);
@@ -75,7 +108,7 @@ export const Verify = () => {
             <GridLayout title="Sign Up">
 
                 <InputBox
-                    icon="&#9993;" 
+                    icon={mailIcon}
                     placeholder="Email OTP"
                     name="emailOtp"
                     value={formData.emailOtp}
@@ -83,10 +116,10 @@ export const Verify = () => {
                     verified={formData.emailVerified}
                 />
 
-                {!formData.emailVerified && <Button title="Verify" onSubmit={handleEmailVerification} className={""}/>}
+                {!formData.emailVerified && <Button title="Verify" onSubmit={handleEmailVerification} className={""} />}
 
                 <InputBox
-                    icon="&#128222;" 
+                    icon={phoneIcon}
                     placeholder="Mobile OTP"
                     name="phoneOtp"
                     value={formData.phoneOtp}
@@ -94,7 +127,7 @@ export const Verify = () => {
                     verified={formData.phoneVerified}
                 />
 
-                {!formData.phoneVerified && <Button title="Verify" onSubmit={handleMobileVerification} className={""}/>}
+                {!formData.phoneVerified && <Button title="Verify" onSubmit={handleMobileVerification} className={""} />}
             </GridLayout>
         </div>
     )

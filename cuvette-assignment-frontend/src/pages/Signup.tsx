@@ -29,7 +29,7 @@ export const Signup = () => {
         e.preventDefault(); // Prevent the default form submission
 
         try {
-            const response = await fetch('http://localhost:5000/api/auth/register', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -42,8 +42,8 @@ export const Signup = () => {
             }
 
             const data = await response.json();
-            const token = data.token;
-            localStorage.setItem("token", token);
+            const id = data.id;
+            localStorage.setItem("id", id);
             localStorage.setItem("name", formData.name);
             console.log('Success:', data);
             navigate('/verify');

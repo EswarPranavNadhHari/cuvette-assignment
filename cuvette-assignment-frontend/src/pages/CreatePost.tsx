@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "../components/Button"
 import { DashboardLayout } from "../components/DashboardLayout"
 import { useNavigate } from "react-router-dom";
+import { TagInput } from "../components/TagInput";
 
 
 export const CreatePost = () => {
@@ -13,10 +14,13 @@ export const CreatePost = () => {
         title: '',
         description: '',
         experienceLevel: '',
-        candidates: '',
+        candidates: [],
         endDate: '',
     });
 
+    const handleTagChange = (tags: any) => {
+        setFormData({ ...formData, candidates: tags }); // Update candidates in formData
+    };
 
     const handleChange = (e: { target: { name: string; value: string; }; }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,7 +30,7 @@ export const CreatePost = () => {
     const handleSubmit = async (e: { preventDefault: () => void; } ) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/jobs/post', {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/jobs/post`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -97,15 +101,7 @@ export const CreatePost = () => {
 
                             <div className="flex mb-4">
                                 <label className="flex min-w-44 justify-end mr-10 items-center">Add Candidate</label>
-                                <input
-                                    type="email"
-                                    name="candidates"
-                                    placeholder="xyz@gmail.com"
-                                    value={formData.candidates}
-                                    onChange={handleChange}
-                                    className="w-full p-2 border rounded text-black focus:outline-none focus:border-blue-500"
-                                    required
-                                />
+                                <TagInput tags={formData.candidates} setTags={handleTagChange} />
                             </div>
 
                             <div className="flex mb-4">
@@ -128,7 +124,6 @@ export const CreatePost = () => {
                                         navigate("/createpost")
                                     }}
                                 >
-                                    Submit
                                 </Button>
                             </div>
                         </form>

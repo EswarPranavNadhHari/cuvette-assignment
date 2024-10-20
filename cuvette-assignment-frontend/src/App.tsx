@@ -1,9 +1,9 @@
 
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { Signup } from "./pages/Signup"
-import { Verify } from "./pages/verify"
 import { Dashboard } from "./pages/Dashboard"
 import { CreatePost } from "./pages/CreatePost"
+import { Verify } from "./pages/Verify"
 
 
 function App() {
