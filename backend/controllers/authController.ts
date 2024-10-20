@@ -21,8 +21,6 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         });
         await newCompany.save();
 
-        const verificationToken = jwt.sign({ id: newCompany._id }, process.env.JWT_SECRET as string);
-
         const emailOtp = generateOTP();
         await sendOtpVerificationEmail(newCompany.email, emailOtp);
         const hashedEmailOtp = await hashOTP(emailOtp)
@@ -38,7 +36,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         res.status(201).json(
             { 
                 message: "Registration successful, Verify your Email and Phone Number",
-                token: verificationToken
+                id: newCompany._id
             });
     } catch (error) {
         console.log(error)
@@ -65,10 +63,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 // };
 
 export const verifyEmailOtp = async (req: Request, res: Response): Promise<void> => {
-    const { otp } = req.body;
+    const { otp, id } = req.body;
     try {
 
-        const companyId = req.company.id;
+        const companyId = id;
         console.log(companyId);
         const company = await Company.findById(companyId);
         if (!company) {
@@ -93,10 +91,10 @@ export const verifyEmailOtp = async (req: Request, res: Response): Promise<void>
 };
 
 export const verifyMobileOtp = async (req: Request, res: Response): Promise<void> => {
-    const { otp } = req.body;
+    const { otp, id } = req.body;
     try {
 
-        const companyId = req.company.id;
+        const companyId = id;
         console.log(companyId);
         const company = await Company.findById(companyId);
         if (!company) {
@@ -110,7 +108,7 @@ export const verifyMobileOtp = async (req: Request, res: Response): Promise<void
         await company.save();
 
         if(verify){
-            res.status(200).json({ message: "M verified successfully!" });
+            res.status(200).json({ message: "Mobile verified successfully!" });
             return;
         }
         res.status(401).json({ message: "Incorrect OTP" });
@@ -120,4 +118,33 @@ export const verifyMobileOtp = async (req: Request, res: Response): Promise<void
         return;
     }
 };
+
+export const generateToken = async (req: Request, res: Response): Promise<void> => {
+    const {id} = req.headers
+    try{
+        const company = await Company.findById(id);
+    if (!company) {
+        res.status(404).json({ error: "Company not found" });
+        return;
+    }
+
+    if(!(company.emailVerified && company.phoneVerified)){
+        res.status(401).json({ error: "Verify email and phone" });
+        return;
+    }
+
+    const verificationToken = jwt.sign({ id }, process.env.JWT_SECRET as string);
+
+    res.status(201).json(
+        { 
+            message: "verification successful",
+            token: verificationToken
+        });
+    }
+    catch (error) {
+        res.status(400).json({ error: "Error Try again later" });
+        return;
+    }
+    
+}
 
