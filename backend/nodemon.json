@@ -1,0 +1,7 @@
+{
+    "watch": [".", "!dist"],                 
+    "ignore": ["*.d.ts"],                    
+    "ext": "ts",                             
+    "exec": "npm run build-and-run"
+}
+  

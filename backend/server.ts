@@ -1,4 +1,4 @@
-import express, { Application } from "express";
+import express, { Application, Request, Response } from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
 import authRoutes from "./routes/authRoutes";
@@ -15,7 +15,7 @@ app.use(cors())
 app.use(express.json()); // To parse JSON bodies
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
-app.get("/",(req, res) => {
+app.get("/",(req: Request, res: Response) => {
     res.send("hello");
 })
 

@@ -65,7 +65,7 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+
 
 # Vuepress build output
 .vuepress/dist
@@ -99,7 +99,7 @@ capacitor.config.ts
 
 # Build directories and files for React
 build/
-dist/
+
 
 # Static build output (React/Next.js)
 out/
