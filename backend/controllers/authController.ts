@@ -12,24 +12,25 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const { name, email, phoneNumber, companyName, employeeSize } = req.body;
 
     try {
+             
+        await sendPhoneOTP(phoneNumber);
+
+        const emailOtp = generateOTP();
+        await sendOtpVerificationEmail(email, emailOtp);
+        const hashedEmailOtp = await hashOTP(emailOtp)
+        console.log(hashedEmailOtp)
+
         const newCompany = new Company({
             name,
             email,
             phoneNumber,
             companyName,
-            employeeSize
+            employeeSize,
+            emailOtp: hashedEmailOtp
         });
+
         await newCompany.save();
 
-        const emailOtp = generateOTP();
-        await sendOtpVerificationEmail(newCompany.email, emailOtp);
-        const hashedEmailOtp = await hashOTP(emailOtp)
-        console.log(hashedEmailOtp)
-
-        await sendPhoneOTP(newCompany.phoneNumber);
-
-        const out = await Company.findByIdAndUpdate(newCompany._id, { emailOtp: hashedEmailOtp })
-        console.log(out)
         res.status(201).json(
             { 
                 message: "Registration successful, Verify your Email and Phone Number",

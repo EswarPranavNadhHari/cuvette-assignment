@@ -14,24 +14,20 @@ const register = async (req, res) => {
     console.log();
     const { name, email, phoneNumber, companyName, employeeSize } = req.body;
     try {
+        await (0, otp_1.sendPhoneOTP)(phoneNumber);
+        const emailOtp = (0, otp_1.generateOTP)();
+        await (0, email_1.default)(email, emailOtp);
+        const hashedEmailOtp = await (0, otp_1.hashOTP)(emailOtp);
+        console.log(hashedEmailOtp);
         const newCompany = new company_1.default({
             name,
             email,
             phoneNumber,
             companyName,
-            employeeSize
+            employeeSize,
+            emailOtp: hashedEmailOtp
         });
         await newCompany.save();
-        const emailOtp = (0, otp_1.generateOTP)();
-        await (0, email_1.default)(newCompany.email, emailOtp);
-        const hashedEmailOtp = await (0, otp_1.hashOTP)(emailOtp);
-        console.log(hashedEmailOtp);
-        const mobileOtp = (0, otp_1.generateOTP)();
-        await (0, otp_1.sendPhoneOTP)(newCompany.phoneNumber, mobileOtp);
-        const hashedMobileOtp = await (0, otp_1.hashOTP)(mobileOtp);
-        console.log(hashedMobileOtp);
-        const out = await company_1.default.findByIdAndUpdate(newCompany._id, { phoneOtp: hashedMobileOtp, emailOtp: hashedEmailOtp });
-        console.log(out);
         res.status(201).json({
             message: "Registration successful, Verify your Email and Phone Number",
             id: newCompany._id
@@ -67,7 +63,7 @@ const verifyEmailOtp = async (req, res) => {
             res.status(404).json({ error: "Company not found" });
             return;
         }
-        const verify = await (0, otp_1.verifyOTP)(otp, company.emailOtp);
+        const verify = await (0, otp_1.verifyEmailOTP)(otp, company.emailOtp);
         company.emailVerified = verify;
         await company.save();
         if (verify) {
@@ -93,7 +89,7 @@ const verifyMobileOtp = async (req, res) => {
             res.status(404).json({ error: "Company not found" });
             return;
         }
-        const verify = await (0, otp_1.verifyOTP)(otp, company.phoneOtp);
+        const verify = await (0, otp_1.verifyMobileOTP)(company.phoneNumber, otp);
         company.phoneVerified = verify;
         await company.save();
         if (verify) {
