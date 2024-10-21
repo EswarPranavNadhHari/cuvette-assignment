@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Company from "../models/company";
 import sendOtpVerificationEmail from "../utils/email";
-import { generateOTP, hashOTP, sendPhoneOTP, verifyOTP } from "../utils/otp";
+import { generateOTP, hashOTP, sendPhoneOTP, verifyEmailOTP, verifyMobileOTP } from "../utils/otp";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -26,12 +26,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         const hashedEmailOtp = await hashOTP(emailOtp)
         console.log(hashedEmailOtp)
 
-        const mobileOtp = generateOTP();
-        await sendPhoneOTP(newCompany.phoneNumber, mobileOtp);
-        const hashedMobileOtp = await hashOTP(mobileOtp)
-        console.log(hashedMobileOtp)
+        await sendPhoneOTP(newCompany.phoneNumber);
 
-        const out = await Company.findByIdAndUpdate(newCompany._id, { phoneOtp: hashedMobileOtp, emailOtp: hashedEmailOtp })
+        const out = await Company.findByIdAndUpdate(newCompany._id, { emailOtp: hashedEmailOtp })
         console.log(out)
         res.status(201).json(
             { 
@@ -74,7 +71,7 @@ export const verifyEmailOtp = async (req: Request, res: Response): Promise<void>
             return;
         }
 
-        const verify = await verifyOTP(otp, company.emailOtp)
+        const verify = await verifyEmailOTP(otp, company.emailOtp)
 
         company.emailVerified = verify;
         await company.save();
@@ -102,7 +99,7 @@ export const verifyMobileOtp = async (req: Request, res: Response): Promise<void
             return;
         }
 
-        const verify = await verifyOTP(otp, company.phoneOtp)
+        const verify = await verifyMobileOTP(company.phoneNumber, otp)
 
         company.phoneVerified = verify;
         await company.save();

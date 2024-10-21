@@ -7,7 +7,6 @@ interface ICompany extends Document {
   companyName: string;
   employeeSize: string
   emailOtp: string;
-  phoneOtp: string;
   emailVerified: boolean;
   phoneVerified: boolean;
   jobs: Schema.Types.ObjectId[];
@@ -19,7 +18,6 @@ const companySchema = new Schema<ICompany>({
   phoneNumber: { type: String, required: true, unique: true },
   companyName: { type: String, required: true, unique: true },
   employeeSize: { type: String, required: true },
-  phoneOtp: { type: String },
   emailOtp: { type: String },
   emailVerified: { type: Boolean, default: false },
   phoneVerified: { type: Boolean, default: false },
