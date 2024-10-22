@@ -41,7 +41,12 @@ const sendPhoneOTP = async (phone) => {
         }
     }
     catch (error) {
-        console.error('Error sending OTP:', error);
+        if (error instanceof Error) {
+            throw new Error(`Error sending OTP: ${error.message}`);
+        }
+        else {
+            throw new Error('Error sending OTP: An unknown error occurred');
+        }
     }
 };
 exports.sendPhoneOTP = sendPhoneOTP;
@@ -65,7 +70,7 @@ const verifyMobileOTP = async (phone, inputOTP) => {
             code: inputOTP,
             api_key: apiKey,
         });
-        const response = await fetch(`https://api.ringcaptcha.com/${appKey}/code/verify`, {
+        const response = await fetch(`https://api.ringcaptcha.com/${appKey}/verify`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -73,6 +78,7 @@ const verifyMobileOTP = async (phone, inputOTP) => {
             body: body.toString(),
         });
         const data = await response.json();
+        console.log(data);
         return data.status === 'SUCCESS';
     }
     catch (error) {
